@@ -22,8 +22,7 @@ class Lcd(Frame):
     def __init__(self, window):
         super().__init__(window, bg="black")
         # make the GUI fullscreen
-        #window.attributes("-fullscreen", True)
-        window.after(100, window.attributes, '-fullscreen','True')
+        window.attributes("-fullscreen", True)
         # we need to know about the timer (7-segment display) to be able to pause/unpause it
         self._timer = None
         # we need to know about the pushbutton to turn off its LED when the program exits
@@ -233,18 +232,36 @@ class Wires(PhaseThread):
 
     # runs the thread
     def run(self):
-        # TODO
-        pass
+        self._running = True
+        while self._running:
+            current_configuration = self.getState()
+            if current_configuration == self._target:
+                self._defused = True
+                self._running = False
+                print("Wires correctly configured. Phase defused!")
+            else:
+                self._failed = True  # Consider when to set failure; could be immediate or after a check
+                self._running = False
+                print("Incorrect wire configuration, strike!")
+            sleep(1)  
+
+    def getState(self):
+        wireconfig=""
+        for wire in self._component._lwires:
+            if wire.is_connected():
+                wireconfig+="1"
+            else:
+                wireconfig+="0"
+        return wireconfig
 
     # returns the jumper wires state as a string
     def __str__(self):
         if (self._defused):
             return "DEFUSED"
         else:
-            # TODO
-            pass
+            return self.getState()
 
-# the pushbutton phase
+# the push button phase
 class Button(PhaseThread):
     def __init__(self, component_state, component_rgb, target, color, timer, name="Button"):
         super().__init__(name, component_state, target)
@@ -258,6 +275,18 @@ class Button(PhaseThread):
         self._color = color
         # we need to know about the timer (7-segment display) to be able to determine correct pushbutton releases in some cases
         self._timer = timer
+        
+    def validate_release(self, current_time):
+        if self._color == 'Red':
+            return True
+        #Prime numbers
+        elif self._color == 'Green' and current_time in [2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47, 53, 59]:
+            return True
+        #Fibonacci numbers
+        elif self._color == 'Blue' and current_time in [0, 1, 2, 3, 5, 8, 13, 21, 34, 55]:
+            return True
+        return False
+
 
     # runs the thread
     def run(self):
@@ -276,16 +305,18 @@ class Button(PhaseThread):
             # it is released
             else:
                 # was it previously pressed?
+                 # was it previously pressed?
                 if (self._pressed):
                     # check the release parameters
-                    # for R, nothing else is needed
-                    # for G or B, a specific digit must be in the timer (sec) when released
-                    if (not self._target or self._target in self._timer._sec):
+                    current_time = self._timer._sec 
+                    if self.validate_release(current_time):
+                        print("Button Defused")
                         self._defused = True
+                        self._running = False
                     else:
                         self._failed = True
-                    # note that the pushbutton was released
                     self._pressed = False
+                
             sleep(0.1)
 
     # returns the pushbutton's state as a string
