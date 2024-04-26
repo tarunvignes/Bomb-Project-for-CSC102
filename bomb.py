@@ -4,9 +4,9 @@
 # Team: 
 #################################
 
-# import the configs
+#import the configs
 from bomb_configs import *
-# import the phases
+#import the phases
 from bomb_phases import *
 
 ###########
