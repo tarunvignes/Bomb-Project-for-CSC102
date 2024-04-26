@@ -140,7 +140,25 @@ def genKeypadCombination():
         # process each character of the keyword
         for c in passphrase:
             for i, k in enumerate(keys):
-                if (CALL": "FEIGN",\
+                if (k and c in k):
+                    # map each character to its digit equivalent
+                    combination += str(i)
+
+        return combination
+
+    # the list of keywords and matching passphrases
+    keywords = { "BANDIT": "RIVER",\
+                 "BUCKLE": "FADED",\
+                 "CANOPY": "FOXES",\
+                 "DEBATE": "THROW",\
+                 "FIERCE": "TRICK",\
+                 "GIFTED": "CYCLE",\
+                 "IMPACT": "STOLE",\
+                 "LONELY": "TOADY",\
+                 "MIGHTY": "ALOOF",\
+                 "NATURE": "CARVE",\
+                 "REBORN": "CLIMB",\
+                 "RECALL": "FEIGN",\
                  "SYSTEM": "LEAVE",\
                  "TAKING": "SPINY",\
                  "WIDELY": "BOUND",\
@@ -202,4 +220,3 @@ boot_text = f"Booting...\n\x00\x00"\
             f"*{' '.join(ascii_uppercase)}\n"\
             f"*{' '.join([str(n % 10) for n in range(26)])}\n"\
             f"Rendering phases...\x00"
-
