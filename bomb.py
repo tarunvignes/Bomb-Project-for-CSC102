@@ -8,6 +8,9 @@
 from bomb_configs import *
 #import the phases
 from bomb_phases import *
+import pygame
+
+
 
 ###########
 # functions
@@ -34,6 +37,7 @@ def bootup(n=0):
         # scroll the next character after a slight delay (\x00 is a longer delay)
         gui.after(25 if boot_text[n] != "\x00" else 750, bootup, n + 1)
 
+pygame.init()
 # sets up the phase threads
 def setup_phases():
     global timer, keypad, wires, button, toggles
@@ -71,6 +75,8 @@ def check_phases():
     else:
         # the countdown has expired -> explode!
         # turn off the bomb and render the conclusion GUI
+        pygame.mixer.music.load("failure.mp3")
+        pygame.mixer.music.play(1)
         turn_off()
         gui.after(100, gui.conclusion, False)
         # don't check any more phases
@@ -143,6 +149,8 @@ def check_phases():
     if (active_phases == 0):
         # turn off the bomb and render the conclusion GUI
         turn_off()
+        pygame.mixer.music.load("turnoff.mp3")
+        pygame.mixer.music.play(1)
         gui.after(100, gui.conclusion, True)
         # stop checking phases
         return
@@ -153,7 +161,8 @@ def check_phases():
 # handles a strike
 def strike():
     global strikes_left
-    
+    pygame.mixer.music.load("strike.mp3")
+    pygame.mixer.music.play(1)
     # note the strike
     strikes_left -= 1
 
