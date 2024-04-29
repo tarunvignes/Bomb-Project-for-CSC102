@@ -235,7 +235,6 @@ class Wires(PhaseThread):
         self._running = True
         while self._running:
             current_configuration = int(self.getState(),2)
-            print("Wires",current_configuration,self._target)
             if current_configuration == self._target:
                 self._defused = True
                 self._running = False
@@ -339,7 +338,6 @@ class Toggles(PhaseThread):
         self._running = True
         while self._running:
             current_configuration=self.getState()
-            print("Toggles",current_configuration,self._target)
             if current_configuration == self._target:
                 self._defused = True
                 self._running = False
