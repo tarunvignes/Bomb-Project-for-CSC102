@@ -1,12 +1,12 @@
 #################################
-# CSC 102 Defuse the Bomb Project
-# GUI and Phase class definitions
-# Team:
+#CSC 102 Defuse the Bomb Project
+#GUI and Phase class definitions
+#Team:
 #################################
 
-# import the configs
+#import the configs
 from bomb_configs import *
-# other imports
+#other imports
 from tkinter import *
 import tkinter
 from threading import Thread
@@ -15,9 +15,9 @@ import os
 import sys
 
 #########
-# classes
+#classes
 #########
-# the LCD display GUI
+#the LCD display GUI
 class Lcd(Frame):
     def __init__(self, window):
         super().__init__(window, bg="black")
@@ -123,7 +123,7 @@ class Lcd(Frame):
         # exit the application
         exit(0)
 
-# template (superclass) for various bomb components/phases
+#template (superclass) for various bomb components/phases
 class PhaseThread(Thread):
     def __init__(self, name, component=None, target=None):
         super().__init__(name=name, daemon=True)
@@ -140,7 +140,7 @@ class PhaseThread(Thread):
         # phase threads are either running or not
         self._running = False
 
-# the timer phase
+#the timer phase
 class Timer(PhaseThread):
     def __init__(self, component, initial_value, name="Timer"):
         super().__init__(name, component)
@@ -187,7 +187,7 @@ class Timer(PhaseThread):
     def __str__(self):
         return f"{self._min}:{self._sec}"
 
-# the keypad phase
+#the keypad phase
 class Keypad(PhaseThread):
     def __init__(self, component, target, name="Keypad"):
         super().__init__(name, component, target)
@@ -225,7 +225,7 @@ class Keypad(PhaseThread):
         else:
             return self._value
 
-# the jumper wires phase
+#the jumper wires phase
 class Wires(PhaseThread):
     def __init__(self, component, target, name="Wires"):
         super().__init__(name, component, target)
@@ -233,15 +233,18 @@ class Wires(PhaseThread):
     # runs the thread
     def run(self):
         self._running = True
+        self._previous_configuration=int(self.getState(),2)
         while self._running:
             current_configuration = int(self.getState(),2)
             if current_configuration == self._target:
                 self._defused = True
-                self._running = False
                 print("Wires correctly configured. Phase defused!")
+            elif current_configuration == self._previous_configuration:
+                # Skipping no change in the wires
+                pass
             else:
+                self._previous_configuration=current_configuration
                 self._failed = True  # Consider when to set failure; could be immediate or after a check
-                self._running = False
                 print("Incorrect wire configuration, strike!")
             sleep(1)  
 
@@ -261,7 +264,7 @@ class Wires(PhaseThread):
         else:
             return self.getState()
 
-# the push button phase
+#the push button phase
 class Button(PhaseThread):
     def __init__(self, component_state, component_rgb, target, color, timer, name="Button"):
         super().__init__(name, component_state, target)
@@ -277,13 +280,13 @@ class Button(PhaseThread):
         self._timer = timer
        
     def validate_release(self, current_time):
-        if self._color == 'Red':
+        if self._color == 'R':
             return True
         #Prime numbers
-        elif self._color == 'Green' and current_time in [2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47, 53, 59]:
+        elif self._color == 'G' and int(current_time) in [2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47, 53, 59]:
             return True
         #Fibonacci numbers
-        elif self._color == 'Blue' and current_time in [0, 1, 2, 3, 5, 8, 13, 21, 34, 55]:
+        elif self._color == 'B' and int(current_time) in [0, 1, 2, 3, 5, 8, 13, 21, 34, 55]:
             return True
         return False
 
@@ -299,7 +302,7 @@ class Button(PhaseThread):
             # get the pushbutton's state
             self._value = self._component.value
             # it is pressed
-            print("Button",self._value,self._target)
+            #print("Button",self._value,self._target)
             if (self._value):
                 # note it
                 self._pressed = True
@@ -310,11 +313,10 @@ class Button(PhaseThread):
                 if (self._pressed):
                     # check the release parameters
                     current_time = self._timer._sec
-                    print("Current time",current_time)
+                    print("Current time",current_time,self._color)
                     if self.validate_release(current_time):
                         print("Button Defused")
                         self._defused = True
-                        self._running = False
                     else:
                         self._failed = True
                     self._pressed = False
@@ -328,7 +330,7 @@ class Button(PhaseThread):
         else:
             return str("Pressed" if self._value else "Released")
 
-# the toggle switches phase
+#the toggle switches phase
 class Toggles(PhaseThread):
     def __init__(self, component, target, name="Toggles"):
         super().__init__(name, component, target)
@@ -336,22 +338,28 @@ class Toggles(PhaseThread):
     # runs the thread
     def run(self):
         self._running = True
+        self._previous_configuration=int(self.getState(),2)
         while self._running:
-            current_configuration=self.getState()
+            current_configuration = int(self.getState(),2)
             if current_configuration == self._target:
                 self._defused = True
-                self._running = False
                 print("Toggles correctly configured. Phase defused!")
+            elif current_configuration == self._previous_configuration:
+                # Skipping no change in the toggles
+                pass
             else:
+                self._previous_configuration=current_configuration
                 self._failed = True  # Consider when to set failure; could be immediate or after a check
-                self._running = False
                 print("Incorrect Toggle configuration, strike!")
             sleep(1)  
 
     def getState(self):
         toggles=""
         for component in self._component:
-            toggles+=str(component.value)
+            if component.value == True:
+                toggles+="1"
+            else:
+                toggles+="0"
         return toggles
 
     # returns the toggle switches state as a string
