@@ -139,7 +139,19 @@ class PhaseThread(Thread):
         self._value = None
         # phase threads are either running or not
         self._running = False
+        
+def checkifyourareonrightpath(previous, current,target):
+        if previous==current:
+            return True
+        print(previous, " ", current, " " , target)
 
+        for i in range(len(current)):
+            if current[i] != previous[i] and current[i] == target[i]:
+                return True
+        return False
+    
+def getBinary(num, length):
+        return bin(int(num))[2:].zfill(length)
 #the timer phase
 class Timer(PhaseThread):
     def __init__(self, component, initial_value, name="Timer"):
@@ -233,15 +245,17 @@ class Wires(PhaseThread):
     # runs the thread
     def run(self):
         self._running = True
-        self._previous_configuration=int(self.getState(),2)
+        self._targetbinary=getBinary(self._target,5)
+        self._previous_configuration=self.getState()
         while self._running:
-            current_configuration = int(self.getState(),2)
-            if current_configuration == self._target:
+            current_configuration = self.getState()
+            if current_configuration == self._targetbinary:
                 self._defused = True
-                print("Wires correctly configured. Phase defused!")
-            elif current_configuration == self._previous_configuration:
+                print("Toggles correctly configured. Phase defused!")
+            elif checkifyourareonrightpath(self._previous_configuration,current_configuration, self._targetbinary):
                 # Skipping no change in the wires
-                pass
+                self._previous_configuration=current_configuration
+
             else:
                 self._previous_configuration=current_configuration
                 self._failed = True  # Consider when to set failure; could be immediate or after a check
@@ -337,16 +351,17 @@ class Toggles(PhaseThread):
 
     # runs the thread
     def run(self):
+        self._targetbinary=getBinary(self._target,4)
         self._running = True
-        self._previous_configuration=int(self.getState(),2)
+        self._previous_configuration=self.getState()
         while self._running:
-            current_configuration = int(self.getState(),2)
-            if current_configuration == self._target:
+            current_configuration = self.getState()
+            if current_configuration == self._targetbinary:
                 self._defused = True
                 print("Toggles correctly configured. Phase defused!")
-            elif current_configuration == self._previous_configuration:
-                # Skipping no change in the toggles
-                pass
+            elif checkifyourareonrightpath(self._previous_configuration,current_configuration, self._targetbinary):
+                # Skipping no change in the toggles or user making proper changes
+                self._previous_configuration=current_configuration
             else:
                 self._previous_configuration=current_configuration
                 self._failed = True  # Consider when to set failure; could be immediate or after a check
