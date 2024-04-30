@@ -8,7 +8,6 @@
 from bomb_configs import *
 #import the phases
 from bomb_phases import *
-# Import pygame to play music
 import pygame
 
 
@@ -38,7 +37,6 @@ def bootup(n=0):
         # scroll the next character after a slight delay (\x00 is a longer delay)
         gui.after(25 if boot_text[n] != "\x00" else 750, bootup, n + 1)
 
-#Initialize pygame
 pygame.init()
 # sets up the phase threads
 def setup_phases():
@@ -77,7 +75,6 @@ def check_phases():
     else:
         # the countdown has expired -> explode!
         # turn off the bomb and render the conclusion GUI
-        # Play the music to indicate the failure of defusing the bom
         pygame.mixer.music.load("failure.mp3")
         pygame.mixer.music.play(1)
         turn_off()
@@ -144,6 +141,8 @@ def check_phases():
     if (strikes_left == 0):
         # turn off the bomb and render the conclusion GUI
         turn_off()
+        pygame.mixer.music.load("failure.mp3")
+        pygame.mixer.music.play(1)
         gui.after(1000, gui.conclusion, False)
         # stop checking phases
         return
@@ -152,7 +151,6 @@ def check_phases():
     if (active_phases == 0):
         # turn off the bomb and render the conclusion GUI
         turn_off()
-        # Play the music of successfully defused
         pygame.mixer.music.load("turnoff.mp3")
         pygame.mixer.music.play(1)
         gui.after(100, gui.conclusion, True)
