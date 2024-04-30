@@ -143,7 +143,6 @@ class PhaseThread(Thread):
 def checkifyourareonrightpath(previous, current,target):
         if previous==current:
             return True
-        print(previous, " ", current, " " , target)
 
         for i in range(len(current)):
             if current[i] != previous[i] and current[i] == target[i]:
@@ -251,7 +250,7 @@ class Wires(PhaseThread):
             current_configuration = self.getState()
             if current_configuration == self._targetbinary:
                 self._defused = True
-                print("Toggles correctly configured. Phase defused!")
+                print("Wires correctly configured. Phase defused!")
             elif checkifyourareonrightpath(self._previous_configuration,current_configuration, self._targetbinary):
                 # Skipping no change in the wires
                 self._previous_configuration=current_configuration
@@ -327,7 +326,6 @@ class Button(PhaseThread):
                 if (self._pressed):
                     # check the release parameters
                     current_time = self._timer._sec
-                    print("Current time",current_time,self._color)
                     if self.validate_release(current_time):
                         print("Button Defused")
                         self._defused = True
