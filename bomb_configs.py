@@ -147,7 +147,7 @@ def genKeypadCombination():
         return combination
 
     # the list of keywords and matching passphrases
-    keywords = { "BANDIT": "RIVER",\
+    oldkeywords = { "BANDIT": "RIVER",\
                  "BUCKLE": "FADED",\
                  "CANOPY": "FOXES",\
                  "DEBATE": "THROW",\
@@ -163,6 +163,22 @@ def genKeypadCombination():
                  "TAKING": "SPINY",\
                  "WIDELY": "BOUND",\
                  "ZAGGED": "YACHT" }
+    keywords = { "MIDWAY": "FEIGN",\
+                 "MIGHTY": "CARVE",\
+                 "REBORN": "TRICK",\
+                 "RECALL": "CLIMB",\
+                 "SYMBOL": "LEAVE",\
+                 "WIDELY": "BOUND",\
+                 "WINGED": "YACHT",\
+                 "BADGER": "RIVER",\
+                 "BANDIT": "FADED",\
+                 "CABLES": "SPINY",\
+                 "CANOPY": "THROW",\
+                 "FIELDS": "CYCLE",\
+                 "FIERCE": "ALOOF",\
+                 "IMMUNE": "STOLE",\
+                 "IMPACT": "TOADY",\
+                 "SYSTEM": "FOXES" }
     # the rotation cipher key
     rot = randint(1, 25)
 
