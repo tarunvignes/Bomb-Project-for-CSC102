@@ -139,17 +139,26 @@ class PhaseThread(Thread):
         self._value = None
         # phase threads are either running or not
         self._running = False
-        
+
+# Function to check if the user is turning or switching appropriate cables
+# The method to is added to avoid strikes too quickly when the user is defusing in sequence
 def checkifyourareonrightpath(previous, current,target):
+    # if the previous state and current state is same return true to indicate no change
         if previous==current:
             return True
-
+        # Loop all the character in current state
         for i in range(len(current)):
+            # Check if the previous bit is not same as current state bit and then check whether the target and current are same
+            # Return True if condition matches
             if current[i] != previous[i] and current[i] == target[i]:
                 return True
+    # Return False to indicate the user is going in wrong direction
         return False
-    
+
+
+# Function to convert integer to binary and add appropriate zeroes in the front for easy comparison as string
 def getBinary(num, length):
+    # Remove the first bits from binary conversion and fill with zeroes in the front for the given length
         return bin(int(num))[2:].zfill(length)
 #the timer phase
 class Timer(PhaseThread):
@@ -244,23 +253,31 @@ class Wires(PhaseThread):
     # runs the thread
     def run(self):
         self._running = True
+        # Convert the target number to binary
         self._targetbinary=getBinary(self._target,5)
+        # Set a base configuration by reading state
         self._previous_configuration=self.getState()
         while self._running:
+            # Get the current state
             current_configuration = self.getState()
+            # if current state equals to target then mark it as defused
             if current_configuration == self._targetbinary:
                 self._defused = True
                 print("Wires correctly configured. Phase defused!")
+            # Check whether if configuration changed or user making correct changes
             elif checkifyourareonrightpath(self._previous_configuration,current_configuration, self._targetbinary):
-                # Skipping no change in the wires
+                # Skipping no change in the wires or making proper changes
                 self._previous_configuration=current_configuration
-
+        
             else:
+                # Indicate Failed and reset current configuration to avoid immediate failures
                 self._previous_configuration=current_configuration
-                self._failed = True  # Consider when to set failure; could be immediate or after a check
+                self._failed = True  
                 print("Incorrect wire configuration, strike!")
+            # Sleep for a second to wait for the user
             sleep(1)  
 
+    # Returns the state of the current wires as a binary string
     def getState(self):
         wireconfig=""
         for wire in self._component:
@@ -291,7 +308,9 @@ class Button(PhaseThread):
         self._color = color
         # we need to know about the timer (7-segment display) to be able to determine correct pushbutton releases in some cases
         self._timer = timer
-       
+
+    # check whether user pushed the button on correct time matching to seconds to indicate depending on color 
+    # current_time just the second portion of timer
     def validate_release(self, current_time):
         if self._color == 'R':
             return True
@@ -301,6 +320,7 @@ class Button(PhaseThread):
         #Fibonacci numbers
         elif self._color == 'B' and int(current_time) in [0, 1, 2, 3, 5, 8, 13, 21, 34, 55]:
             return True
+        # Return false user made a mistake
         return False
 
 
@@ -321,7 +341,6 @@ class Button(PhaseThread):
                 self._pressed = True
             # it is released
             else:
-                # was it previously pressed?
                  # was it previously pressed?
                 if (self._pressed):
                     # check the release parameters
@@ -349,23 +368,31 @@ class Toggles(PhaseThread):
 
     # runs the thread
     def run(self):
+        # Convert the target number to binary
         self._targetbinary=getBinary(self._target,4)
         self._running = True
+        # Set a base configuration by reading state
         self._previous_configuration=self.getState()
         while self._running:
             current_configuration = self.getState()
+            # if current state equals to target then mark it as defused
             if current_configuration == self._targetbinary:
                 self._defused = True
                 print("Toggles correctly configured. Phase defused!")
+            # Check whether if configuration changed or user making correct changes
             elif checkifyourareonrightpath(self._previous_configuration,current_configuration, self._targetbinary):
                 # Skipping no change in the toggles or user making proper changes
                 self._previous_configuration=current_configuration
+            
             else:
+                # Indicate Failed and reset current configuration to avoid immediate failures
                 self._previous_configuration=current_configuration
                 self._failed = True  # Consider when to set failure; could be immediate or after a check
                 print("Incorrect Toggle configuration, strike!")
+            # Sleep for a second to wait for the user
             sleep(1)  
 
+    # Returns the state of the current wires as a binary string
     def getState(self):
         toggles=""
         for component in self._component:
