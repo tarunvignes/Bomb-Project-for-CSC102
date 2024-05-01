@@ -141,6 +141,7 @@ def check_phases():
     if (strikes_left == 0):
         # turn off the bomb and render the conclusion GUI
         turn_off()
+        # Play the music for the failure since the user ran out of strikes
         pygame.mixer.music.load("failure.mp3")
         pygame.mixer.music.play(1)
         gui.after(1000, gui.conclusion, False)
@@ -151,6 +152,7 @@ def check_phases():
     if (active_phases == 0):
         # turn off the bomb and render the conclusion GUI
         turn_off()
+        # Play the music for successfully defusing the bomb
         pygame.mixer.music.load("turnoff.mp3")
         pygame.mixer.music.play(1)
         gui.after(100, gui.conclusion, True)
@@ -163,6 +165,7 @@ def check_phases():
 # handles a strike
 def strike():
     global strikes_left
+    # Play the music to indicate there is a strike
     pygame.mixer.music.load("strike.mp3")
     pygame.mixer.music.play(1)
     # note the strike
